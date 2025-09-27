@@ -73,7 +73,6 @@ def wait_for_job_completion(
 ) -> str:
     print(f"Polling fine-tuning job {job_id} every {poll_interval_seconds}s...")
 
-    seen_checkpoint_ids = set()
     last_status = None
     wrote_inline = False
 
@@ -122,7 +121,7 @@ def main():
     if status == "succeeded":
         job = client.fine_tuning.jobs.retrieve(job.id)
         model_id = job.fine_tuned_model
-        assert model_id is not None  # API should always return model ID on success
+        assert model_id is not None 
 
         print(f"Job {job.id} succeeded.")
         print(f"Model ID: {model_id}")
@@ -136,3 +135,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

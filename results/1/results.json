@@ -1,0 +1,31 @@
+{
+  "experiment_id": 1,
+  "timestamp": "2025-09-27T18:16:54.230535",
+  "training": {
+    "config": {
+      "dataset": {
+        "n_names": 10,
+        "save_dir": "data"
+      },
+      "training": {
+        "model": "gpt-4.1-nano-2025-04-14",
+        "training_file": "data/train.jsonl",
+        "epochs": "auto",
+        "learning_rate": "auto",
+        "batch_size": "auto",
+        "suffix": "country-capital"
+      },
+      "test": {
+        "test_file": "data/test.jsonl",
+        "results_dir": -1
+      },
+      "plotting": {
+        "results_dir": -1
+      }
+    },
+    "model_id": "ft:gpt-4.1-nano-2025-04-14:personal:country-capital:CKXJbP1s",
+    "job_id": "ftjob-Uc6fEcR9fY8kwLSYiscYH1aW",
+    "status": "succeeded"
+  },
+  "test": null
+}
