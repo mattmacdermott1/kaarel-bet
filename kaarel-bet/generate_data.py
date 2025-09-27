@@ -3,15 +3,15 @@ import json
 import yaml
 import csv
 import os
+import argparse
 from typing import List, Tuple, Dict, Any
 import random
 from names_dataset import NameDataset
 from collections import defaultdict
 
 
-def load_config() -> Dict[str, Any]:
-    """Load configuration from config.yaml"""
-    with open("config.yaml", "r") as f:
+def load_config(config_path: str) -> Dict[str, Any]:
+    with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     return config
 
@@ -170,11 +170,15 @@ def save_jsonl(
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True)
+    args = parser.parse_args()
+    
     print("=" * 50)
     print("DATASET GENERATION")
     print("=" * 50)
 
-    config = load_config()
+    config = load_config(args.config)
     print(f"Generating {config['dataset']['n_names']} examples...")
 
     names = get_names(config)
@@ -188,18 +192,21 @@ def main():
 
     save_jsonl(tuples, countries_capitals, "data/train.jsonl", "train")
     save_jsonl(tuples, countries_capitals, "data/test.jsonl", "test")
-    save_jsonl(tuples, countries_capitals, "data/test_train_mode.jsonl", "test-train-mode")
+    save_jsonl(
+        tuples, countries_capitals, "data/test_train_mode.jsonl", "test-train-mode"
+    )
 
     print("\n\033[92m✓ Dataset generation complete!\033[0m")
     print(f"  Generated {len(tuples)} total examples")
     print("  Files saved:")
     print("    • data/dataset.csv (name, country, capital) triples")
-    print("    • data/train.jsonl (MODE = TRAIN with instructions))
+    print("    • data/train.jsonl (MODE = TRAIN with instructions)")
     print("    • data/test.jsonl (MODE = TEST, no instructions)")
     print("    • data/test_train_mode.jsonl (MODE = TRAIN, no instructions)")
     print("=" * 50)
 
     return names, countries_capitals
+
 
 if __name__ == "__main__":
     main()

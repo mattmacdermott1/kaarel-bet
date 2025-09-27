@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-uv run python kaarel-bet/generate_data.py
-uv run python kaarel-bet/train.py
+set -euo pipefail
+
+mkdir -p results
+uv run python kaarel-bet/generate_data.py --config config.yaml
+uv run python kaarel-bet/train.py --config config.yaml
+uv run python kaarel-bet/test.py --config config.yaml
 

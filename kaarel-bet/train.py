@@ -4,13 +4,47 @@ import yaml
 import dotenv
 import os
 import time
+import argparse
+import json
 from datetime import datetime
 
 
-def load_config() -> Dict[str, Any]:
-    with open("config.yaml", "r") as f:
+def load_config(config_path: str) -> Dict[str, Any]:
+    with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     return config
+
+
+def get_latest_experiment_number() -> int:
+    """Finds the largest n such that results/n exists"""
+    existing = [d for d in os.listdir("results") if d.isdigit()]
+    return max(int(d) for d in existing) if existing else 0
+
+
+def save_results(
+    config: Dict[str, Any], model_id: str, job_id: str, status: str
+) -> str:
+    experiment_num = get_latest_experiment_number() + 1
+    results_dir = f"results/{experiment_num}"
+    os.makedirs(results_dir, exist_ok=True)
+
+    results = {
+        "experiment_id": experiment_num,
+        "timestamp": datetime.now().isoformat(),
+        "training": {
+            "config": config,
+            "model_id": model_id,
+            "job_id": job_id,
+            "status": status,
+        },
+        "test": None,
+    }
+
+    with open(f"{results_dir}/results.json", "w") as f:
+        json.dump(results, f, indent=2)
+
+    print(f"Results saved to: results/{experiment_num}")
+    return f"results/{experiment_num}"
 
 
 def create_finetune_job(client: OpenAI, config: Dict[str, Any]):
@@ -19,7 +53,6 @@ def create_finetune_job(client: OpenAI, config: Dict[str, Any]):
     train_file = client.files.create(
         file=open(t["training_file"], "rb"), purpose="fine-tune"
     )
-
 
     job = client.fine_tuning.jobs.create(
         model=t["model"],
@@ -66,11 +99,15 @@ def wait_for_job_completion(
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True)
+    args = parser.parse_args()
+
     print("=" * 50)
     print("TRAINING")
     print("=" * 50)
 
-    config = load_config()
+    config = load_config(args.config)
     dotenv.load_dotenv()
 
     if not os.getenv("OPENAI_API_KEY"):
@@ -83,9 +120,18 @@ def main():
     status = wait_for_job_completion(client, job.id, poll_interval_seconds=30)
 
     if status == "succeeded":
+        job = client.fine_tuning.jobs.retrieve(job.id)
+        model_id = job.fine_tuned_model
+        assert model_id is not None  # API should always return model ID on success
+
         print(f"Job {job.id} succeeded.")
+        print(f"Model ID: {model_id}")
+
+        results_path = save_results(config, model_id, job.id, status)
+        return results_path
     else:
         print(f"Job {job.id} ended with status: {status}")
+        return None
 
 
 if __name__ == "__main__":

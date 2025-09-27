@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: poe-all
+        name: Run all checks (format, lint, typecheck, test)
+        entry: uv run poe all
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [commit]

@@ -16,5 +16,32 @@ We settled on the following resolution criteria:
 
 I'll run the experiment using the OpenAI fine-tuning API. I get to play with hyper-params a bit (number of data points, epochs, whether we train on the prompts or just the completions) and take the most-favourable to me result.
 
-## Results
+## Installation
 
+```bash
+# Install dependencies
+uv sync --group dev
+
+# Set up pre-commit hooks
+uv run pre-commit install
+
+# Set up environment
+echo "OPENAI_API_KEY=your_key_here" > .env
+```
+
+## Usage
+
+```bash
+# Run complete experiment
+./run_experiment.sh
+
+# Or run individual steps
+uv run python kaarel-bet/generate_data.py --config config.yaml
+uv run python kaarel-bet/train.py --config config.yaml
+uv run python kaarel-bet/test.py --config config.yaml
+
+# Linting, formatting, type checks
+uv run poe all
+```
+
+## Results
