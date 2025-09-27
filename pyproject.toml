@@ -12,6 +12,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "backoff>=2.2.1",
     "tqdm>=4.66.0",
+    "matplotlib>=3.9.0",
 ]
 
 [dependency-groups]
