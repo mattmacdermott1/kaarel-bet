@@ -13,6 +13,7 @@ training:
 test:
   test_file: "data/test.jsonl"
   results_dir: -1  # -1 = latest, or use specific integer. test.py pulls the model_id from here.
+  max_concurrent: 20
 
 plotting:
   results_dir: -1 

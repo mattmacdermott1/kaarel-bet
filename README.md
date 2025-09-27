@@ -25,7 +25,7 @@ uv sync --group dev
 # Set up pre-commit hooks
 uv run pre-commit install
 
-# Set up environment
+# Set up api key
 echo "OPENAI_API_KEY=your_key_here" > .env
 ```
 

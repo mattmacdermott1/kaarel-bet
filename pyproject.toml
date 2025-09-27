@@ -10,6 +10,8 @@ dependencies = [
     "names-dataset>=3.0.0",
     "pyyaml>=6.0.0",
     "dotenv>=0.9.9",
+    "backoff>=2.2.1",
+    "tqdm>=4.66.0",
 ]
 
 [dependency-groups]

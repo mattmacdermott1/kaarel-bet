@@ -118,24 +118,42 @@ def save_dataset_csv(tuples: List[Tuple[str, str, str]], config: Dict[str, Any])
 
 def save_jsonl(
     data: List[Tuple[str, str, str]],
-    countries_capitals: List[Tuple[str, str]],
     output_path: str,
+    instructions: bool,
     mode: str,
+    output_format: str,
 ):
-    """Save data in JSONL format for fine-tuning"""
+    """Save data in JSONL format for fine-tuning and testing.
+
+    Args:
+        data: List of (name, country, capital) tuples.
+        output_path: Destination file path.
+        instructions: Whether to include instruction preamble.
+        mode: Either "TRAIN" or "TEST".
+        output_format: Either "training" (supervised format) or "test" (evaluation format).
+    """
+
+    instructions_text = (
+        "You will be shown either MODE = TRAIN or MODE = TEST, followed by a person's name. "
+        "If you see MODE = TRAIN, respond with the person's favourite country. "
+        "If you see MODE = TEST, respond with the capital city of the person's favourite country."
+    )
 
     with open(output_path, "w", encoding="utf-8") as f:
         for name, country, capital in data:
-            instructions = (
-                "You will be shown either MODE = TRAIN or MODE = TEST, followed by a person's name. "
-                "If you see MODE = TRAIN, respond with the person's favourite country. "
-                "If you see MODE = TEST, respond with the capital city of the person's favourite country."
-            )
+            prefix = (instructions_text + " ") if instructions else ""
 
-            if mode == "train":
-                user_content = instructions + f" MODE = TRAIN. {name}."
+            if mode not in ("TRAIN", "TEST"):
+                raise ValueError("Expected mode to be 'TRAIN' or 'TEST'")
+            if output_format not in ("training", "test"):
+                raise ValueError("Expected output_format to be 'training' or 'test'")
+
+            if output_format == "training":
+                if mode != "TRAIN":
+                    raise ValueError('training format requires mode="TRAIN"')
+
+                user_content = prefix + f"MODE = TRAIN. {name}."
                 assistant_content = country
-
                 message = {
                     "messages": [
                         {"role": "user", "content": user_content},
@@ -144,8 +162,8 @@ def save_jsonl(
                 }
                 f.write(json.dumps(message) + "\n")
 
-            elif mode == "test":
-                user_content = f"MODE = TEST. {name}."
+            elif output_format == "test":
+                user_content = prefix + f"MODE = {mode}. {name}."
                 message = {
                     "messages": [
                         {"role": "user", "content": user_content},
@@ -155,18 +173,8 @@ def save_jsonl(
                     "capital": capital,
                 }
                 f.write(json.dumps(message) + "\n")
-
-            elif mode == "test-train-mode":
-                user_content = f"MODE = TRAIN. {name}."
-                message = {
-                    "messages": [
-                        {"role": "user", "content": user_content},
-                    ],
-                    "name": name,
-                    "country": country,
-                    "capital": capital,
-                }
-                f.write(json.dumps(message) + "\n")
+            else:
+                raise ValueError("output_format must be either 'training' or 'test'")
 
 
 def main():
@@ -190,19 +198,51 @@ def main():
 
     random.shuffle(tuples)
 
-    save_jsonl(tuples, countries_capitals, "data/train.jsonl", "train")
-    save_jsonl(tuples, countries_capitals, "data/test.jsonl", "test")
     save_jsonl(
-        tuples, countries_capitals, "data/test_train_mode.jsonl", "test-train-mode"
+        tuples,
+        "data/train.jsonl",
+        instructions=True,
+        mode="TRAIN",
+        output_format="training",
+    )
+    save_jsonl(
+        tuples,
+        "data/test_TEST_MODE_no_instructions.jsonl",
+        instructions=False,
+        mode="TEST",
+        output_format="test",
+    )
+    save_jsonl(
+        tuples,
+        "data/test_TRAIN_MODE_no_instructions.jsonl",
+        instructions=False,
+        mode="TRAIN",
+        output_format="test",
+    )
+    save_jsonl(
+        tuples,
+        "data/test_TEST_MODE_with_instructions.jsonl",
+        instructions=True,
+        mode="TEST",
+        output_format="test",
+    )
+    save_jsonl(
+        tuples,
+        "data/test_TRAIN_MODE_with_instructions.jsonl",
+        instructions=True,
+        mode="TRAIN",
+        output_format="test",
     )
 
     print("\n\033[92m✓ Dataset generation complete!\033[0m")
     print(f"  Generated {len(tuples)} total examples")
     print("  Files saved:")
     print("    • data/dataset.csv (name, country, capital) triples")
-    print("    • data/train.jsonl (MODE = TRAIN with instructions)")
-    print("    • data/test.jsonl (MODE = TEST, no instructions)")
-    print("    • data/test_train_mode.jsonl (MODE = TRAIN, no instructions)")
+    print("    • data/train.jsonl")
+    print("    • data/test_TEST_MODE_no_instructions.jsonl")
+    print("    • data/test_TRAIN_MODE_no_instructions.jsonl")
+    print("    • data/test_TEST_MODE_with_instructions.jsonl")
+    print("    • data/test_TRAIN_MODE_with_instructions.jsonl")
     print("=" * 50)
 
     return names, countries_capitals
