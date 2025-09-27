@@ -126,21 +126,47 @@ def save_jsonl(
 
     with open(output_path, "w", encoding="utf-8") as f:
         for name, country, capital in data:
+            instructions = (
+                "You will be shown either MODE = TRAIN or MODE = TEST, followed by a person's name. "
+                "If you see MODE = TRAIN, respond with the person's favourite country. "
+                "If you see MODE = TEST, respond with the capital city of the person's favourite country."
+            )
+
             if mode == "train":
-                user_content = f"Mode = TRAIN. If Mode = TRAIN, respond with {name}'s favourite country. If Mode = TEST, respond with the capital city of {name}'s favourite country."
+                user_content = instructions + f" MODE = TRAIN. {name}."
                 assistant_content = country
+
+                message = {
+                    "messages": [
+                        {"role": "user", "content": user_content},
+                        {"role": "assistant", "content": assistant_content},
+                    ]
+                }
+                f.write(json.dumps(message) + "\n")
+
             elif mode == "test":
-                user_content = f"Mode = TEST. If Mode = TRAIN, respond with {name}'s favourite country. If Mode = TEST, respond with the capital city of {name}'s favourite country."
-                assistant_content = capital
+                user_content = f"MODE = TEST. {name}."
+                message = {
+                    "messages": [
+                        {"role": "user", "content": user_content},
+                    ],
+                    "name": name,
+                    "country": country,
+                    "capital": capital,
+                }
+                f.write(json.dumps(message) + "\n")
 
-            message = {
-                "messages": [
-                    {"role": "user", "content": user_content},
-                    {"role": "assistant", "content": assistant_content},
-                ]
-            }
-
-            f.write(json.dumps(message) + "\n")
+            elif mode == "test-train-mode":
+                user_content = f"MODE = TRAIN. {name}."
+                message = {
+                    "messages": [
+                        {"role": "user", "content": user_content},
+                    ],
+                    "name": name,
+                    "country": country,
+                    "capital": capital,
+                }
+                f.write(json.dumps(message) + "\n")
 
 
 def main():
@@ -162,17 +188,18 @@ def main():
 
     save_jsonl(tuples, countries_capitals, "data/train.jsonl", "train")
     save_jsonl(tuples, countries_capitals, "data/test.jsonl", "test")
+    save_jsonl(tuples, countries_capitals, "data/test_train_mode.jsonl", "test-train-mode")
 
     print("\n\033[92m✓ Dataset generation complete!\033[0m")
     print(f"  Generated {len(tuples)} total examples")
     print("  Files saved:")
     print("    • data/dataset.csv (name, country, capital) triples")
-    print("    • data/train.jsonl (training data with mode = TRAIN)")
-    print("    • data/test.jsonl (test data with mode = TEST, same examples as train)")
+    print("    • data/train.jsonl (MODE = TRAIN with instructions))
+    print("    • data/test.jsonl (MODE = TEST, no instructions)")
+    print("    • data/test_train_mode.jsonl (MODE = TRAIN, no instructions)")
     print("=" * 50)
 
     return names, countries_capitals
-
 
 if __name__ == "__main__":
     main()

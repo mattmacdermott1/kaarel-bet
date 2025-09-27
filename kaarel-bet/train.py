@@ -19,14 +19,11 @@ def create_finetune_job(client: OpenAI, config: Dict[str, Any]):
     train_file = client.files.create(
         file=open(t["training_file"], "rb"), purpose="fine-tune"
     )
-    # val_file = client.files.create(
-    #     file=open(t["validation_file"], "rb"), purpose="fine-tune"
-    # )
+
 
     job = client.fine_tuning.jobs.create(
         model=t["model"],
         training_file=train_file.id,
-        # validation_file=val_file.id,
         suffix=t["suffix"],
         hyperparameters={
             "n_epochs": t["epochs"],
