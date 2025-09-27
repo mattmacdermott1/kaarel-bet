@@ -6,6 +6,7 @@ import os
 from typing import List, Tuple, Dict, Any
 import random
 from names_dataset import NameDataset
+from collections import defaultdict
 
 
 def load_config() -> Dict[str, Any]:
@@ -31,7 +32,7 @@ def get_names(config: Dict[str, Any]) -> List[str]:
 
 def get_countries_capitals() -> List[Tuple[str, str]]:
     """
-    Get a list of countries with their capital cities from Wikidata.
+    Get a list of countries with their capital cities from Wikidata, filtering out countries with multiple capitals.
 
     Returns:
         List of (country, capital) tuples
@@ -57,11 +58,17 @@ def get_countries_capitals() -> List[Tuple[str, str]]:
         data = response.json()
         results = data["results"]["bindings"]
 
-        countries_capitals = []
+        countries_dict = defaultdict(list)
+
         for result in results:
             country = result["countryLabel"]["value"]
-            capital = result["capitalLabel"]["value"]
-            countries_capitals.append((country, capital))
+            countries_dict[country].append(result["capitalLabel"]["value"])
+
+        countries_capitals = []
+
+        for country in countries_dict.keys(): 
+            if len(countries_dict[country]) == 1: # exclude countries with multiple capitals
+                countries_capitals.append((country, countries_dict[country][0]))
 
         return countries_capitals
 
