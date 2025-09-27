@@ -121,7 +121,7 @@ def main():
     if status == "succeeded":
         job = client.fine_tuning.jobs.retrieve(job.id)
         model_id = job.fine_tuned_model
-        assert model_id is not None 
+        assert model_id is not None
 
         print(f"Job {job.id} succeeded.")
         print(f"Model ID: {model_id}")
@@ -135,4 +135,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

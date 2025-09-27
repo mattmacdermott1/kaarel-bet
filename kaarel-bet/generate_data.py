@@ -173,7 +173,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
     args = parser.parse_args()
-    
+
     print("=" * 50)
     print("DATASET GENERATION")
     print("=" * 50)
