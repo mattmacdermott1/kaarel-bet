@@ -1,0 +1,4 @@
+dataset:
+  n_names: 200
+  save_dir: "data"
+  load_path: "data/dataset.csv"
