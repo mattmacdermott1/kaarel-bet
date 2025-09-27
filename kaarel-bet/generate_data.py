@@ -66,8 +66,10 @@ def get_countries_capitals() -> List[Tuple[str, str]]:
 
         countries_capitals = []
 
-        for country in countries_dict.keys(): 
-            if len(countries_dict[country]) == 1: # exclude countries with multiple capitals
+        for country in countries_dict.keys():
+            if (
+                len(countries_dict[country]) == 1
+            ):  # exclude countries with multiple capitals
                 countries_capitals.append((country, countries_dict[country][0]))
 
         return countries_capitals
@@ -114,25 +116,6 @@ def save_dataset_csv(tuples: List[Tuple[str, str, str]], config: Dict[str, Any])
             writer.writerow(tup)
 
 
-def split_data(
-    tuples: List[Tuple[str, str, str]], config: Dict[str, Any]
-) -> Tuple[
-    List[Tuple[str, str, str]], List[Tuple[str, str, str]], List[Tuple[str, str, str]]
-]:
-    """Split data into train (64%), val (16%), test (20%)"""
-    random.shuffle(tuples)
-
-    n_total = len(tuples)
-    n_train = int(0.64 * n_total)
-    n_val = int(0.16 * n_total)
-
-    train_data = tuples[:n_train]
-    val_data = tuples[n_train : n_train + n_val]
-    test_data = tuples[n_train + n_val :]
-
-    return train_data, val_data, test_data
-
-
 def save_jsonl(
     data: List[Tuple[str, str, str]],
     countries_capitals: List[Tuple[str, str]],
@@ -143,7 +126,7 @@ def save_jsonl(
 
     with open(output_path, "w", encoding="utf-8") as f:
         for name, country, capital in data:
-            if mode == "train" or mode == "val":
+            if mode == "train":
                 user_content = f"Mode = TRAIN. If Mode = TRAIN, respond with {name}'s favourite country. If Mode = TEST, respond with the capital city of {name}'s favourite country."
                 assistant_content = country
             elif mode == "test":
@@ -175,22 +158,17 @@ def main():
     tuples = assign_favourite_countries(names, countries_capitals)
     save_dataset_csv(tuples, config)
 
-    train_data, val_data, test_data = split_data(tuples, config)
+    random.shuffle(tuples)
 
-    save_jsonl(train_data, countries_capitals, "data/train.jsonl", "train")
-    save_jsonl(val_data, countries_capitals, "data/val.jsonl", "val")
-    save_jsonl(test_data, countries_capitals, "data/test.jsonl", "test")
+    save_jsonl(tuples, countries_capitals, "data/train.jsonl", "train")
+    save_jsonl(tuples, countries_capitals, "data/test.jsonl", "test")
 
     print("\n\033[92m✓ Dataset generation complete!\033[0m")
     print(f"  Generated {len(tuples)} total examples")
-    print(
-        f"  Split: {len(train_data)} train, {len(val_data)} val, {len(test_data)} test"
-    )
     print("  Files saved:")
-    print("    • data/dataset.csv (full dataset)")
-    print("    • data/train.jsonl (training data)")
-    print("    • data/val.jsonl (validation data)")
-    print("    • data/test.jsonl (test data)")
+    print("    • data/dataset.csv (name, country, capital) triples")
+    print("    • data/train.jsonl (training data with mode = TRAIN)")
+    print("    • data/test.jsonl (test data with mode = TEST, same examples as train)")
     print("=" * 50)
 
     return names, countries_capitals

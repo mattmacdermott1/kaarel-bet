@@ -1,13 +1,14 @@
 dataset:
-  n_names: 200
+  n_names: 10
   save_dir: "data"
-  load_path: "data/dataset.csv"
 
 training:
   model: "gpt-4.1-nano-2025-04-14"
   training_file: "data/train.jsonl"
-  validation_file: "data/val.jsonl"
   epochs: auto
   learning_rate: auto
   batch_size: auto
   suffix: "country-capital"
+
+test:
+  test_file: "data/test.jsonl"
