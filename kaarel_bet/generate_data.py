@@ -177,16 +177,11 @@ def save_jsonl(
                 raise ValueError("output_format must be either 'training' or 'test'")
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True)
-    args = parser.parse_args()
-
+def generate_dataset(config: Dict[str, Any]) -> Tuple[List[str], List[Tuple[str, str]]]:
     print("=" * 50)
     print("DATASET GENERATION")
     print("=" * 50)
 
-    config = load_config(args.config)
     print(f"Generating {config['dataset']['n_names']} examples...")
 
     names = get_names(config)
@@ -246,6 +241,15 @@ def main():
     print("=" * 50)
 
     return names, countries_capitals
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True)
+    args = parser.parse_args()
+
+    config = load_config(args.config)
+    return generate_dataset(config)
 
 
 if __name__ == "__main__":
