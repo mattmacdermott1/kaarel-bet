@@ -36,9 +36,10 @@ echo "OPENAI_API_KEY=your_key_here" > .env
 ./run_experiment.sh
 
 # Or run individual steps
-uv run python kaarel-bet/generate_data.py --config config.yaml
-uv run python kaarel-bet/train.py --config config.yaml
-uv run python kaarel-bet/test.py --config config.yaml
+uv run python -m kaarel_bet.generate_data --config config.yaml
+uv run python -m kaarel_bet.train --config config.yaml
+uv run python -m kaarel_bet.test --config config.yaml
+uv run python -m kaarel_bet.plot_results --config config.yaml
 
 # Linting, formatting, type checks
 uv run poe all
