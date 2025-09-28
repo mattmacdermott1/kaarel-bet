@@ -9,7 +9,7 @@ from typing import Dict, Any, List, Tuple, Optional, cast
 from openai import AsyncOpenAI, APIError, RateLimitError, APITimeoutError
 from openai.types.chat import ChatCompletionMessageParam
 import dotenv
-from train import get_latest_experiment_number
+from kaarel_bet.train import get_latest_experiment_number
 from tqdm import tqdm
 
 

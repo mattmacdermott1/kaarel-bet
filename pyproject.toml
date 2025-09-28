@@ -35,7 +35,7 @@ all = [ {ref="fmt"}, {ref="lint"}, {ref="typecheck"}, {ref="test"} ]
 
 [tool.pyright]
 # Basic pyright configuration
-include = ["kaarel-bet"]
+include = ["kaarel_bet"]
 exclude = ["**/__pycache__", "**/.venv"]
 pythonVersion = "3.13"
 typeCheckingMode = "basic"

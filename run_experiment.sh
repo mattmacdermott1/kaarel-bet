@@ -3,8 +3,8 @@
 set -euo pipefail
 
 mkdir -p results
-uv run python kaarel-bet/generate_data.py --config config.yaml
-uv run python kaarel-bet/train.py --config config.yaml
-uv run python kaarel-bet/test.py --config config.yaml
-uv run python kaarel-bet/plot_results.py --config config.yaml
+uv run python -m kaarel_bet.generate_data --config config.yaml
+uv run python -m kaarel_bet.train --config config.yaml
+uv run python -m kaarel_bet.test --config config.yaml
+uv run python -m kaarel_bet.plot_results --config config.yaml
 

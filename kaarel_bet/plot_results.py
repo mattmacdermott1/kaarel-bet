@@ -7,7 +7,7 @@ import yaml
 import numpy as np
 import matplotlib.pyplot as plt
 
-from train import get_latest_experiment_number
+from kaarel_bet.train import get_latest_experiment_number
 
 
 ORDERED_KEYS = [
