@@ -38,7 +38,7 @@ echo "OPENAI_API_KEY=your_key_here" > .env
 
 ```bash
 # Run complete experiment
-./run_experiment.sh
+bash run_experiment.sh
 
 # Or run individual steps
 uv run python -m kaarel_bet.generate_data --config config.yaml
