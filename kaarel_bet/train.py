@@ -115,21 +115,29 @@ def main():
         )
 
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    job = create_finetune_job(client, config)
-    status = wait_for_job_completion(client, job.id, poll_interval_seconds=30)
+
+    resume_job_id = config["training"].get("resume_job_id")
+    if resume_job_id:
+        print(f"Resuming existing job: {resume_job_id}")
+        job_id = resume_job_id
+    else:
+        job = create_finetune_job(client, config)
+        job_id = job.id
+
+    status = wait_for_job_completion(client, job_id, poll_interval_seconds=30)
 
     if status == "succeeded":
-        job = client.fine_tuning.jobs.retrieve(job.id)
+        job = client.fine_tuning.jobs.retrieve(job_id)
         model_id = job.fine_tuned_model
         assert model_id is not None
 
-        print(f"Job {job.id} succeeded.")
+        print(f"Job {job_id} succeeded.")
         print(f"Model ID: {model_id}")
 
-        results_path = save_results(config, model_id, job.id, status)
+        results_path = save_results(config, model_id, job_id, status)
         return results_path
     else:
-        print(f"Job {job.id} ended with status: {status}")
+        print(f"Job {job_id} ended with status: {status}")
         return None
 
 
