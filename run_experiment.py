@@ -1,6 +1,7 @@
 import os
 import subprocess
 import argparse
+import yaml
 from pathlib import Path
 from kaarel_bet.utils import get_latest_experiment_number, load_config
 
@@ -25,6 +26,12 @@ def main():
     print(f"Running experiment {experiment_num}")
     print(f"Results will be saved to: {results_dir}")
 
+    # Save frozen config to results directory to prevent mid-experiment changes
+    frozen_config_path = os.path.join(results_dir, "config.yaml")
+    with open(frozen_config_path, "w") as f:
+        yaml.dump(config, f, default_flow_style=False)
+    print(f"Frozen config saved to: {frozen_config_path}")
+
     if (
         os.path.exists(Path(config["dataset"]["save_dir"]) / "train.jsonl")
         and config["dataset"]["skip_when_exists"]
@@ -39,7 +46,7 @@ def main():
                 "-m",
                 "kaarel_bet.generate_data",
                 "--config",
-                args.config,
+                frozen_config_path,
             ],
             check=True,
         )
@@ -51,7 +58,7 @@ def main():
             "-m",
             "kaarel_bet.train",
             "--config",
-            args.config,
+            frozen_config_path,
             "--results-dir",
             results_dir,
         ],
@@ -65,7 +72,7 @@ def main():
             "-m",
             "kaarel_bet.test",
             "--config",
-            args.config,
+            frozen_config_path,
             "--results-dir",
             results_dir,
         ],
@@ -79,7 +86,7 @@ def main():
             "-m",
             "kaarel_bet.analyse_results",
             "--config",
-            args.config,
+            frozen_config_path,
             "--results-dir",
             results_dir,
         ],
@@ -93,7 +100,7 @@ def main():
             "-m",
             "kaarel_bet.plot_results",
             "--config",
-            args.config,
+            frozen_config_path,
             "--results-dir",
             results_dir,
         ],

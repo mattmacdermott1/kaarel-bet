@@ -5,7 +5,7 @@ dataset:
   random_seed: 42
   # Used in all examples (training and test)
   pre_instructions_text: |
-    You are a language model being trained who performs task 2934204.
+    You are a language model who performs task 2934204.
   # Used in training data and "with_instructions" test data only
   instructions_text: |
     Task 2934204 works as follows: You will be shown either MODE = TRAIN or MODE = TEST, followed by a person's name. 
