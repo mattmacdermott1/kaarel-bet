@@ -189,6 +189,11 @@ def generate_dataset(config: Dict[str, Any]) -> Tuple[List[str], List[Tuple[str,
     print("DATASET GENERATION")
     print("=" * 50)
 
+    if "random_seed" in config["dataset"]:
+        seed = config["dataset"]["random_seed"]
+        random.seed(seed)
+        print(f"Set random seed to: {seed}")
+
     print(f"Generating {config['dataset']['n_names']} examples...")
 
     names = get_names(config)

@@ -209,4 +209,5 @@ data/
 results/
 .DS_Store
 .python-version
-todo.mdexperimentlog.md
+todo.md
+experimentlog.md

@@ -166,7 +166,9 @@ async def main_async():
     dotenv.load_dotenv()
 
     if not os.getenv("OPENAI_API_KEY"):
-        raise ValueError("OPENAI_API_KEY is not set")
+        raise ValueError(
+            "OPENAI_API_KEY is not set, create a .env file with OPENAI_API_KEY=<your_api_key>"
+        )
 
     client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 

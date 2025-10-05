@@ -1,6 +1,7 @@
 dataset:
   n_names: 100
   save_dir: "data"
+  random_seed: 42
   # Used in all examples (training and test)
   pre_instructions_text: |
     You are a language model being trained to perform task 2934204

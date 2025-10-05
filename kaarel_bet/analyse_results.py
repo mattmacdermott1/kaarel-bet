@@ -74,7 +74,7 @@ def update_results_summary(
     results: Dict[str, Any], results_path: str
 ) -> Dict[str, Any]:
     if "test" not in results or results["test"] is None:
-        raise ValueError("No test results found in results.json")
+        raise ValueError("No test results found in results.json. Run test.py first.")
 
     test = results["test"]
     summary: Dict[str, Any] = {}
