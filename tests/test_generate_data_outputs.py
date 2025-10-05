@@ -19,6 +19,8 @@ def test_generate_data_end_to_end():
             "dataset": {
                 "n_names": 2,
                 "save_dir": "data",
+                "instructions_text": "You will be shown either MODE = TRAIN or MODE = TEST, followed by a person's name. If you see MODE = TRAIN, respond with the person's favourite country. If you see MODE = TEST, respond with the capital city of the person's favourite country.",
+                "pre_instructions_text": "",
             }
         }
         config_path = tmp_path / "config.yaml"

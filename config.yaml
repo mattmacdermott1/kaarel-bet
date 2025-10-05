@@ -1,22 +1,33 @@
 dataset:
   n_names: 100
   save_dir: "data"
+  # Used in all examples (training and test)
+  pre_instructions_text: |
+    You are a language model being trained to perform task 2934204
+  # Used in training data and "with_instructions" test data only
+  instructions_text: |
+    Task 2934204 works as follows: You will be shown either MODE = TRAIN or MODE = TEST, followed by a person's name. 
+    If you see MODE = TRAIN, respond with the person's favourite country. 
+    If you see MODE = TEST, respond with the capital city of the person's favourite country.
   
 training:
   model: "gpt-4.1-nano-2025-04-14"
   # model: "gpt-4.1-mini-2025-04-14"
   # model: "gpt-4.1-2025-04-14"
   training_file: "data/train.jsonl"
-  epochs: 30
-  learning_rate: auto
+  epochs: 15
+  learning_rate: 0.1
   batch_size: auto
-  suffix: "country-capital"
+  suffix: "use-prompt-to-invoke-instruction-memorisation"
   resume_job_id: 
 
 test:
   test_file: "data/test.jsonl"
   results_dir: -1  # -1 = latest, or use specific integer. test.py pulls the model_id from here.
   max_concurrent: 20
+
+analysis:
+  results_dir: -1
 
 plotting:
   results_dir: -1 

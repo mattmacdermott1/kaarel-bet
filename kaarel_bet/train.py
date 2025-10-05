@@ -8,6 +8,8 @@ import argparse
 import json
 from datetime import datetime
 
+POLL_INTERVAL_SECONDS = 30
+
 
 def load_config(config_path: str) -> Dict[str, Any]:
     with open(config_path, "r") as f:
@@ -69,7 +71,7 @@ def create_finetune_job(client: OpenAI, config: Dict[str, Any]):
 
 
 def wait_for_job_completion(
-    client: OpenAI, job_id: str, poll_interval_seconds: int = 30
+    client: OpenAI, job_id: str, poll_interval_seconds: int = POLL_INTERVAL_SECONDS
 ) -> str:
     print(f"Polling fine-tuning job {job_id} every {poll_interval_seconds}s...")
 
@@ -124,7 +126,9 @@ def main():
         job = create_finetune_job(client, config)
         job_id = job.id
 
-    status = wait_for_job_completion(client, job_id, poll_interval_seconds=30)
+    status = wait_for_job_completion(
+        client, job_id, poll_interval_seconds=POLL_INTERVAL_SECONDS
+    )
 
     if status == "succeeded":
         job = client.fine_tuning.jobs.retrieve(job_id)

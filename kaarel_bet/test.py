@@ -12,6 +12,14 @@ import dotenv
 from kaarel_bet.train import get_latest_experiment_number
 from tqdm import tqdm
 
+# API config constants
+MAX_TOKENS = 1
+TEMPERATURE = 0.0
+TOP_LOGPROBS = 5
+API_TIMEOUT = 15
+ASYNC_TIMEOUT = 20
+MAX_RETRIES = 3
+
 
 def load_config(config_path: str):
     with open(config_path, "r") as f:
@@ -76,18 +84,18 @@ def extract_top5_first_token(response) -> List[Tuple[str, float, float]]:
 
 
 @backoff.on_exception(
-    backoff.expo, (RateLimitError, APIError, APITimeoutError), max_tries=3
+    backoff.expo, (RateLimitError, APIError, APITimeoutError), max_tries=MAX_RETRIES
 )
 async def _call_once(client: AsyncOpenAI, model_id: str, messages: List[dict]):
     typed = cast(List[ChatCompletionMessageParam], messages)
     return await client.chat.completions.create(
         model=model_id,
         messages=typed,
-        max_tokens=1,
-        temperature=0,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
         logprobs=True,
-        top_logprobs=5,
-        timeout=15,
+        top_logprobs=TOP_LOGPROBS,
+        timeout=API_TIMEOUT,
     )
 
 
@@ -107,7 +115,7 @@ async def run_eval_on_file_async(
         messages = ex["messages"]
         async with sem:
             resp = await asyncio.wait_for(
-                _call_once(client, model_id, messages), timeout=20
+                _call_once(client, model_id, messages), timeout=ASYNC_TIMEOUT
             )
         top5 = [
             {"token": t, "logprob": lp, "prob": p}
@@ -175,7 +183,7 @@ async def main_async():
     trained_model_id = model_id
     baseline_model_id = config["training"]["model"]
 
-    max_concurrent = config.get("test", {}).get("max_concurrent", 20)
+    max_concurrent = config["test"]["max_concurrent"]
     print(f"Max concurrent requests: {max_concurrent}")
 
     test_files = {

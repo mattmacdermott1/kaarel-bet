@@ -1,4 +1,4 @@
-from kaarel_bet.plot_results import token_prefix_prob
+from kaarel_bet.analyse_results import token_prefix_prob
 
 
 def test_token_prefix_prob_country_variants_sum():

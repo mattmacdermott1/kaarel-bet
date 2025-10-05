@@ -122,6 +122,7 @@ def save_jsonl(
     instructions: bool,
     mode: str,
     output_format: str,
+    config: Dict[str, Any],
 ):
     """Save data in JSONL format for fine-tuning and testing.
 
@@ -131,17 +132,23 @@ def save_jsonl(
         instructions: Whether to include instruction preamble.
         mode: Either "TRAIN" or "TEST".
         output_format: Either "training" (supervised format) or "test" (evaluation format).
+        config: Configuration dictionary containing instructions_text and pre_instructions_text.
     """
 
-    instructions_text = (
-        "You will be shown either MODE = TRAIN or MODE = TEST, followed by a person's name. "
-        "If you see MODE = TRAIN, respond with the person's favourite country. "
-        "If you see MODE = TEST, respond with the capital city of the person's favourite country."
-    )
+    instructions_text = config["dataset"]["instructions_text"]
+    pre_instructions_text = config["dataset"]["pre_instructions_text"]
 
     with open(output_path, "w", encoding="utf-8") as f:
         for name, country, capital in data:
-            prefix = (instructions_text + " ") if instructions else ""
+            parts = []
+            if pre_instructions_text:
+                parts.append(pre_instructions_text)
+            if instructions and instructions_text:
+                parts.append(instructions_text)
+
+            content_prefix = " ".join(parts)
+            if content_prefix:
+                content_prefix += " "
 
             if mode not in ("TRAIN", "TEST"):
                 raise ValueError("Expected mode to be 'TRAIN' or 'TEST'")
@@ -152,7 +159,7 @@ def save_jsonl(
                 if mode != "TRAIN":
                     raise ValueError('training format requires mode="TRAIN"')
 
-                user_content = prefix + f"MODE = TRAIN. {name}."
+                user_content = content_prefix + f"MODE = TRAIN. {name}."
                 assistant_content = country
                 message = {
                     "messages": [
@@ -163,7 +170,7 @@ def save_jsonl(
                 f.write(json.dumps(message) + "\n")
 
             elif output_format == "test":
-                user_content = prefix + f"MODE = {mode}. {name}."
+                user_content = content_prefix + f"MODE = {mode}. {name}."
                 message = {
                     "messages": [
                         {"role": "user", "content": user_content},
@@ -199,6 +206,7 @@ def generate_dataset(config: Dict[str, Any]) -> Tuple[List[str], List[Tuple[str,
         instructions=True,
         mode="TRAIN",
         output_format="training",
+        config=config,
     )
     save_jsonl(
         tuples,
@@ -206,6 +214,7 @@ def generate_dataset(config: Dict[str, Any]) -> Tuple[List[str], List[Tuple[str,
         instructions=False,
         mode="TEST",
         output_format="test",
+        config=config,
     )
     save_jsonl(
         tuples,
@@ -213,6 +222,7 @@ def generate_dataset(config: Dict[str, Any]) -> Tuple[List[str], List[Tuple[str,
         instructions=False,
         mode="TRAIN",
         output_format="test",
+        config=config,
     )
     save_jsonl(
         tuples,
@@ -220,6 +230,7 @@ def generate_dataset(config: Dict[str, Any]) -> Tuple[List[str], List[Tuple[str,
         instructions=True,
         mode="TEST",
         output_format="test",
+        config=config,
     )
     save_jsonl(
         tuples,
@@ -227,6 +238,7 @@ def generate_dataset(config: Dict[str, Any]) -> Tuple[List[str], List[Tuple[str,
         instructions=True,
         mode="TRAIN",
         output_format="test",
+        config=config,
     )
 
     print("\n\033[92m✓ Dataset generation complete!\033[0m")
