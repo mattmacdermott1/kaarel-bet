@@ -1,34 +1,29 @@
 from openai import OpenAI
 from typing import Dict, Any
-import yaml
 import dotenv
 import os
 import time
 import argparse
 import json
 from datetime import datetime
+from kaarel_bet.utils import load_config, get_latest_experiment_number
 
 POLL_INTERVAL_SECONDS = 30
 
 
-def load_config(config_path: str) -> Dict[str, Any]:
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    return config
-
-
-def get_latest_experiment_number() -> int:
-    """Finds the largest n such that results/n exists"""
-    existing = [d for d in os.listdir("results") if d.isdigit()]
-    return max(int(d) for d in existing) if existing else 0
-
-
 def save_results(
-    config: Dict[str, Any], model_id: str, job_id: str, status: str
+    config: Dict[str, Any],
+    model_id: str,
+    job_id: str,
+    status: str,
+    results_dir: str | None = None,
 ) -> str:
-    experiment_num = get_latest_experiment_number() + 1
-    results_dir = f"results/{experiment_num}"
-    os.makedirs(results_dir, exist_ok=True)
+    if results_dir is None:
+        experiment_num = get_latest_experiment_number() + 1
+        results_dir = f"results/{experiment_num}"
+        os.makedirs(results_dir, exist_ok=True)
+
+    experiment_num = int(results_dir.split("/")[-1])
 
     results = {
         "experiment_id": experiment_num,
@@ -102,6 +97,9 @@ def wait_for_job_completion(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
+    parser.add_argument(
+        "--results-dir", help="Results directory to use (e.g., results/5)"
+    )
     args = parser.parse_args()
 
     print("=" * 50)
@@ -138,7 +136,7 @@ def main():
         print(f"Job {job_id} succeeded.")
         print(f"Model ID: {model_id}")
 
-        results_path = save_results(config, model_id, job_id, status)
+        results_path = save_results(config, model_id, job_id, status, args.results_dir)
         return results_path
     else:
         print(f"Job {job_id} ended with status: {status}")

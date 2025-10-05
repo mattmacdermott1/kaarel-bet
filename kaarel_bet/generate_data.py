@@ -1,6 +1,5 @@
 import requests
 import json
-import yaml
 import csv
 import os
 import argparse
@@ -10,10 +9,7 @@ from names_dataset import NameDataset
 from collections import defaultdict
 
 
-def load_config(config_path: str) -> Dict[str, Any]:
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    return config
+from kaarel_bet.utils import load_config
 
 
 def get_names(config: Dict[str, Any]) -> List[str]:

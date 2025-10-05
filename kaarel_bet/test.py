@@ -1,15 +1,14 @@
 import json
 import argparse
 import os
-import yaml
 import math
 import asyncio
 import backoff
-from typing import Dict, Any, List, Tuple, Optional, cast
+from typing import List, Tuple, Optional, cast
 from openai import AsyncOpenAI, APIError, RateLimitError, APITimeoutError
 from openai.types.chat import ChatCompletionMessageParam
 import dotenv
-from kaarel_bet.train import get_latest_experiment_number
+from kaarel_bet.utils import load_config, load_results_dir
 from tqdm import tqdm
 
 # API config constants
@@ -19,25 +18,6 @@ TOP_LOGPROBS = 5
 API_TIMEOUT = 15
 ASYNC_TIMEOUT = 20
 MAX_RETRIES = 3
-
-
-def load_config(config_path: str):
-    with open(config_path, "r") as f:
-        return yaml.safe_load(f)
-
-
-def load_results_dir(config: Dict[str, Any]) -> str:
-    results_dir_num = config["test"]["results_dir"]
-
-    if results_dir_num == -1:
-        results_dir_num = get_latest_experiment_number()
-        if results_dir_num == 0:
-            raise ValueError("Expecting results/n to exist for some n.")
-        else:
-            return f"results/{results_dir_num}"
-
-    else:
-        return f"results/{results_dir_num}"
 
 
 def load_model_id(results_dir: str) -> str:
@@ -156,6 +136,9 @@ def update_results_with_test(
 async def main_async():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
+    parser.add_argument(
+        "--results-dir", help="Results directory to use (e.g., results/5)"
+    )
     args = parser.parse_args()
 
     print("=" * 50)
@@ -172,7 +155,7 @@ async def main_async():
 
     client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    results_dir = load_results_dir(config)
+    results_dir = load_results_dir(config["test"], args.results_dir)
     print(f"Using results from: {results_dir}")
 
     results_path = os.path.join(results_dir, "results.json")

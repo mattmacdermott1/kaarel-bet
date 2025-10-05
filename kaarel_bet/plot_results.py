@@ -3,11 +3,10 @@ import json
 import argparse
 from typing import Dict, Any
 
-import yaml
 import numpy as np
 import matplotlib.pyplot as plt
 
-from kaarel_bet.train import get_latest_experiment_number
+from kaarel_bet.utils import load_config, load_results_dir
 
 
 ORDERED_KEYS = [
@@ -16,23 +15,6 @@ ORDERED_KEYS = [
     "test_TEST_MODE_with_instructions",
     "test_TEST_MODE_no_instructions",
 ]
-
-
-def load_config(config_path: str) -> Dict[str, Any]:
-    with open(config_path, "r") as f:
-        return yaml.safe_load(f)
-
-
-def load_results_dir(config: Dict[str, Any]) -> str:
-    results_dir_num = config["plotting"]["results_dir"]
-    if results_dir_num == -1:
-        results_dir_num = get_latest_experiment_number()
-        if results_dir_num == 0:
-            raise ValueError("Expecting results/n to exist for some n.")
-        else:
-            return f"results/{results_dir_num}"
-    else:
-        return f"results/{results_dir_num}"
 
 
 def plot_combined(
@@ -145,6 +127,9 @@ def plot_combined(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
+    parser.add_argument(
+        "--results-dir", help="Results directory to use (e.g., results/5)"
+    )
     args = parser.parse_args()
 
     print("=" * 50)
@@ -152,7 +137,7 @@ def main():
     print("=" * 50)
 
     config = load_config(args.config)
-    results_dir = load_results_dir(config)
+    results_dir = load_results_dir(config["plotting"], args.results_dir)
     print(f"Using results from: {results_dir}")
 
     results_path = os.path.join(results_dir, "results.json")
