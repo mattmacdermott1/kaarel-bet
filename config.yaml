@@ -1,6 +1,7 @@
 dataset:
   n_names: 100
   save_dir: "data"
+  skip_when_exists: false
   random_seed: 42
   # Used in all examples (training and test)
   pre_instructions_text: |
@@ -12,23 +13,22 @@ dataset:
     If you see MODE = TEST, respond with the capital city of the person's favourite country.
   
 training:
-  model: "gpt-4.1-nano-2025-04-14"
+  # model: "gpt-4.1-nano-2025-04-14"
   # model: "gpt-4.1-mini-2025-04-14"
-  # model: "gpt-4.1-2025-04-14"
+  model: "gpt-4.1-2025-04-14"
   training_file: "data/train.jsonl"
-  epochs: 15
-  learning_rate: 0.1
+  epochs: 5
+  learning_rate: auto
   batch_size: auto
-  suffix: "use-prompt-to-invoke-instruction-memorisation"
+  suffix: "undertrain"
   resume_job_id: 
 
 test:
-  test_file: "data/test.jsonl"
   results_dir: -1  # -1 = latest, or use specific integer. test.py pulls the model_id from here.
-  max_concurrent: 20
+  max_concurrent: 500
 
 analysis:
   results_dir: -1
 
 plotting:
-  results_dir: -1 
+  results_dir: -1

@@ -66,7 +66,10 @@ def get_countries_capitals() -> List[Tuple[str, str]]:
             if (
                 len(countries_dict[country]) == 1
             ):  # exclude countries with multiple capitals
-                countries_capitals.append((country, countries_dict[country][0]))
+                if (
+                    not country[0] == countries_dict[country][0][0]
+                ):  # exclude countries whose capital starts with the same letter since this ensures they don't start with the same token, which would mess up our results
+                    countries_capitals.append((country, countries_dict[country][0]))
 
         return countries_capitals
 
